@@ -1,3 +1,4 @@
+#include <boost/regex.hpp>
 #include <fcntl.h>
 #include <google/protobuf/io/coded_stream.h>
 #include <google/protobuf/io/zero_copy_stream_impl.h>
@@ -13,6 +14,7 @@
 #include <algorithm>
 #include <fstream>  // NOLINT(readability/streams)
 #include <string>
+#include <utility>
 #include <vector>
 
 #include "caffe/common.hpp"
@@ -235,4 +237,31 @@ void CVMatToDatum(const cv::Mat& cv_img, Datum* datum) {
   datum->set_data(buffer);
 }
 #endif  // USE_OPENCV
+
+void read_image_data_file(const std::string& source,
+    std::vector<std::pair<std::string, int> >* lines) {
+  std::ifstream infile(source.c_str());
+  std::string filename;
+  int label;
+  std::string line;
+  int linenum = 0;
+  // unescaped regex pattern: \h*("?)(.+?)\1\h+(\d+)\h*
+  boost::regex line_regex("\\h*(\"?)(.+?)\\1\\h+(\\d+)\\h*");
+  while (std::getline(infile, line)) {
+    linenum++;
+    // skip whitespace-only lines
+    if (line.find_first_not_of("\t ") == std::string::npos) {
+      continue;
+    }
+    boost::match_results<std::string::const_iterator> results;
+    if (boost::regex_match(line, results, line_regex)) {
+      filename = results[2];
+      label = atoi(results[3].str().c_str());
+      lines->push_back(std::make_pair(filename, label));
+    } else {
+      LOG(FATAL) << "Couldn't parse line " << linenum << " of " << source;
+    }
+  }
+}
+
 }  // namespace caffe

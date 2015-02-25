@@ -3,6 +3,8 @@
 
 #include <unistd.h>
 #include <string>
+#include <utility>
+#include <vector>
 
 #include "google/protobuf/message.h"
 
@@ -137,6 +139,10 @@ cv::Mat DecodeDatumToCVMat(const Datum& datum, bool is_color);
 
 void CVMatToDatum(const cv::Mat& cv_img, Datum* datum);
 #endif  // USE_OPENCV
+
+void read_image_data_file(
+    const std::string& source,
+    std::vector<std::pair<std::string, int> >* lines);
 
 }  // namespace caffe
 

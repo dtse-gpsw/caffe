@@ -170,7 +170,7 @@ ifneq ($(CPU_ONLY), 1)
 	LIBRARIES := cudart cublas curand
 endif
 
-LIBRARIES += glog gflags protobuf boost_system m hdf5_hl hdf5
+LIBRARIES += glog gflags protobuf boost_system boost_regex m hdf5_hl hdf5
 
 ifeq ($(USE_LEVELDB), 1)
 	LIBRARIES += leveldb snappy
